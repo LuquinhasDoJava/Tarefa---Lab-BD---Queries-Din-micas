@@ -1,7 +1,7 @@
 CREATE TABLE Produto (
     Codigo INT PRIMARY KEY,
     Nome VARCHAR(100),
-    Valor DECIMAL(10, 2)  -- Preço unitário do produto
+    Valor DECIMAL(10, 2)  -- PreÃ§o unitÃ¡rio do produto
 );
 
 CREATE TABLE ENTRADA (
@@ -22,60 +22,57 @@ CREATE TABLE SAIDA (
 GO
 
 CREATE PROCEDURE RegistrarTransacao
-    @Tipo CHAR(1),  -- 'e' para ENTRADA, 's' para SAÍDA
+    @Tipo CHAR(1),  -- 'e' para ENTRADA, 's' para SAÃDA
     @Codigo_Transacao INT,
     @Codigo_Produto INT,
     @Quantidade INT
 AS
 BEGIN
-    -- Declaração de variável para armazenar o valor unitário do produto
+    -- DeclaraÃ§Ã£o de variÃ¡vel para armazenar o valor unitÃ¡rio do produto
     DECLARE @Valor_Unitario DECIMAL(10, 2);
     DECLARE @Valor_Total DECIMAL(10, 2);
     
-    -- Obter o valor unitário do produto
+    -- Obter o valor unitÃ¡rio do produto
     SELECT @Valor_Unitario = Valor
     FROM Produto
     WHERE Codigo = @Codigo_Produto;
     
-    -- Se não encontrar o produto, lançar erro
+    -- Se nÃ£o encontrar o produto, lanÃ§ar erro
     IF @Valor_Unitario IS NULL
     BEGIN
-        RAISERROR('Produto não encontrado!', 16, 1);
+        RAISERROR('Produto nÃ£o encontrado!');
         RETURN;
     END
     
-    -- Calcular o valor total da transação
+    -- Calcular o valor total da transaÃ§Ã£o
     SET @Valor_Total = @Valor_Unitario * @Quantidade;
     
-    -- Verificar o tipo de transação e inserir na tabela correspondente
+    -- Verificar o tipo de transaÃ§Ã£o e inserir na tabela correspondente
     IF @Tipo = 'e'  -- Entrada
     BEGIN
         -- Inserir na tabela ENTRADA
         INSERT INTO ENTRADA (Codigo_Transacao, Codigo_Produto, Quantidade, Valor_Total)
         VALUES (@Codigo_Transacao, @Codigo_Produto, @Quantidade, @Valor_Total);
     END
-    ELSE IF @Tipo = 's'  -- Saída
+    ELSE IF @Tipo = 's'  -- SaÃ­da
     BEGIN
-        -- Inserir na tabela SAÍDA
+        -- Inserir na tabela SAÃDA
         INSERT INTO SAIDA (Codigo_Transacao, Codigo_Produto, Quantidade, Valor_Total)
         VALUES (@Codigo_Transacao, @Codigo_Produto, @Quantidade, @Valor_Total);
     END
     ELSE
     BEGIN
-        -- Caso o tipo não seja 'e' nem 's', lançar erro
-        RAISERROR('Código de transação inválido! Use ''e'' para ENTRADA ou ''s'' para SAÍDA.', 16, 1);
+        -- Caso o tipo nÃ£o seja 'e' nem 's', lanÃ§ar erro
+        RAISERROR('CÃ³digo de transaÃ§Ã£o invÃ¡lido! Use ''e'' para ENTRADA ou ''s'' para SAÃDA.', 16, 1);
     END
 END;
 
-EXEC RegistrarTransacao 'e', 1001, 1, 50;  -- Exemplo de entrada (produto com código 1, quantidade 50)
+EXEC RegistrarTransacao 'e', 1001, 1, 50;  -- Exemplo de entrada (produto com cÃ³digo 1, quantidade 50)
 
-EXEC RegistrarTransacao 's', 1002, 1, 20;  -- Exemplo de saída (produto com código 1, quantidade 20)
+EXEC RegistrarTransacao 's', 1002, 2, 20;  -- Exemplo de saÃ­da (produto com cÃ³digo 1, quantidade 20)
 
+INSERT INTO Produto (Codigo,Nome, Valor) VALUES (1, 'produto01',15.99),
+					        (2, 'produto02',84.85)
 SELECT * FROM SAIDA;
-
 SELECT * FROM ENTRADA;
-
-INSERT INTO Produto (Codigo,Nome, Valor) VALUES(1, 'produto10',10.0),
-											   (2, 'produto20',20.0)
-
 SELECT * FROM Produto;
